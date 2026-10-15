@@ -1,16 +1,11 @@
 {
   "mcpServers": {
     "test-mcp-server": {
-      "type": "stdio",
-      "command": "node",
-      "args": ["build/server.js"],
-      "cwd": "${workspaceFolder}",
-      "dev": {
-        "watch": "build/**/*.js",
-        "debug": {
-          "type": "node"
-        }
-      }
+      "command": "/bin/zsh",
+      "args": [
+        "-lc",
+        "source \"$HOME/.nvm/nvm.sh\" && nvm use 22.17.0 >/dev/null && exec node build/server.js"
+      ]
     }
   }
 }
