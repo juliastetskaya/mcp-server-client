@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "name": "Ivan Ivanov",
+    "email": "ivan@gmail.com",
+    "address": "0105 Saburtalo, Tbilisi, Georgia",
+    "phone": "995-775-45-56"
+  },
+  {
+    "id": 2,
+    "name": "Anna Georg",
+    "email": "georg@gmail.com",
+    "address": "0226 Vake, Batumi, Georgia",
+    "phone": "995-877-96-02"
+  },
+  {
+    "id": 3,
+    "name": "John Doe",
+    "email": "doe@gmil.com",
+    "address": "549 New avenu, New-York, USA",
+    "phone": "024-607-58-99"
+  },
+  {
+    "id": 4,
+    "name": "Iuliia",
+    "email": "iuliia@test.com",
+    "address": "some address",
+    "phone": "778-99-99-99"
+  },
+  {
+    "id": 5,
+    "name": "Alex Morgan",
+    "email": "alex.morgan@example.com",
+    "address": "221B Baker Street, London, UK",
+    "phone": "044-207-946-01"
+  },
+  {
+    "id": 6,
+    "name": "Olga",
+    "email": "olga@gmail.com",
+    "address": "123 Black str, London, UK",
+    "phone": "550-888-75-56"
+  }
+]
