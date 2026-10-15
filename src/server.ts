@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import fs from "node:fs/promises";
@@ -81,7 +81,48 @@ server.registerResource(
         }
 
     }
+);
 
+server.registerResource(
+    "user-details",
+    new ResourceTemplate("users://{userId}/profile", {
+        list: undefined,
+    }),
+    {
+        description: "Get user information by userId",
+        title: "User Details",
+        mimeType: "application/json"
+    }, 
+    async (uri, { userId }) => {
+        const users = await import("./data/users.json", {
+            with: { type: "json"}
+        }).then(m => m.default);
+
+        const user = users.find(user => user.id === +userId);
+
+        if (user === null) {
+            return {
+                contents: [
+                    {
+                        uri: uri.href,
+                        text: JSON.stringify({ error: "User not found" }),
+                        mimeType: "application/json"
+                    }
+                ]
+            }
+        }
+
+        return {
+            contents: [
+                {
+                    uri: uri.href,
+                    text: JSON.stringify(user),
+                    mimeType: "application/json",
+                }
+            ]
+        }
+
+    }
 );
 
 async function createUser(data: {
