@@ -125,6 +125,32 @@ server.registerResource(
     }
 );
 
+server.registerPrompt(
+    "generate-user",
+    {
+        title: "Generate user",
+        description: "Generate a new user based on a given name",
+        argsSchema: {
+            name: z.string(),
+        },
+    },
+    ({ name }) => {
+        return {
+            messages: [
+                {
+                    role: "user",
+                    content: {
+                        type: "text",
+                        text: `Generate a new user with the name ${name}. The user should have a
+                        realistic email, address, and phone number.`,
+                    }
+                }
+            ],
+        };
+    }
+
+)
+
 async function createUser(data: {
     name: string,
     email: string,

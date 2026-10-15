@@ -40,5 +40,19 @@
     "email": "olga@gmail.com",
     "address": "123 Black str, London, UK",
     "phone": "550-888-75-56"
+  },
+  {
+    "id": 7,
+    "name": "Patric",
+    "email": "patric.martinez@gmail.com",
+    "address": "742 Oak Ridge Drive, Seattle, WA 98101, USA",
+    "phone": "206-555-0147"
+  },
+  {
+    "id": 8,
+    "name": "Irina",
+    "email": "irina.volkova@gmail.com",
+    "address": "156 Nevsky Prospect, Saint Petersburg, Russia",
+    "phone": "7-812-555-0198"
   }
 ]
