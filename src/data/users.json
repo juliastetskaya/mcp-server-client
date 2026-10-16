@@ -54,5 +54,12 @@
     "email": "irina.volkova@gmail.com",
     "address": "156 Nevsky Prospect, Saint Petersburg, Russia",
     "phone": "7-812-555-0198"
+  },
+  {
+    "id": 9,
+    "name": "Mary",
+    "email": "mary@test.com",
+    "address": "1222 dfgkldfg",
+    "phone": "1445-22556"
   }
 ]
