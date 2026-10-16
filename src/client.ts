@@ -1,10 +1,10 @@
 import "dotenv/config";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { openrouter } from "@openrouter/ai-sdk-provider";
 import { confirm, input, select } from "@inquirer/prompts";
 import { Client } from "@modelcontextprotocol/sdk/client/index";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio";
 import { Prompt, PromptMessage, Tool } from "@modelcontextprotocol/sdk/types";
-import { generateText } from "ai";
+import { generateText, jsonSchema, stepCountIs } from "ai";
 
 const mcp = new Client(
     {
@@ -17,10 +17,6 @@ const transport = new StdioClientTransport({
     command: "node",
     args: ["build/server.js"],
     stderr: "ignore",
-});
-
-const google = createGoogleGenerativeAI({
-    apiKey: process.env.GEMINI_API_KEY,
 });
 
 async function main() {
@@ -108,6 +104,10 @@ async function main() {
                 } else {
                     await handlePrompt(prompt);
                 }
+
+                break;
+            case "Query":
+                await handleQuery(tools);
         }
     }
 }
@@ -186,12 +186,45 @@ async function handleMessagePrompt(message: PromptMessage) {
         default: true,
     });
 
+    if (!run) return;
+
     const { text } = await generateText({
-        model: google("gemini-3.8-flash"),
+        model: openrouter("openai/gpt-5.2"),
         prompt: message.content.text,
+        maxOutputTokens: 1000,
     });
 
     return text;
+}
+
+async function handleQuery(tools: Tool[]) {
+    const query = await input({ message: "Enter your query"});
+    
+
+    const { text, toolResults } = await generateText({
+        model: openrouter("openai/gpt-5.2"),
+        prompt: query,
+        maxOutputTokens: 1000,
+        stopWhen: stepCountIs(5),
+        tools: tools.reduce((acc, tool) => ({
+            ...acc,
+            [tool.name]: {
+                description: tool.description,
+                inputSchema: jsonSchema(tool.inputSchema),
+                execute: async (args: Record<string, any>) => {
+                    return await mcp.callTool({
+                        name: tool.name,
+                        arguments: args,
+                    });
+                },
+            },
+        }), {}),
+    });
+
+    console.log(
+        // @ts-expect-error
+        text || toolResults[0]?.output?.content[0]?.text || "No text generated"
+    );
 }
 
 main();
