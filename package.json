@@ -14,8 +14,10 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@ai-sdk/google": "^4.0.98",
     "@inquirer/prompts": "^8.7.3",
     "@modelcontextprotocol/sdk": "^1.32.1",
+    "ai": "^7.0.142",
     "dotenv": "^18.0.8",
     "zod": "^4.6.7"
   },

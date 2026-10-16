@@ -1,7 +1,10 @@
-import { input, select } from "@inquirer/prompts";
+import "dotenv/config";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { confirm, input, select } from "@inquirer/prompts";
 import { Client } from "@modelcontextprotocol/sdk/client/index";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio";
-import { Tool } from "@modelcontextprotocol/sdk/types";
+import { Prompt, PromptMessage, Tool } from "@modelcontextprotocol/sdk/types";
+import { generateText } from "ai";
 
 const mcp = new Client(
     {
@@ -14,6 +17,10 @@ const transport = new StdioClientTransport({
     command: "node",
     args: ["build/server.js"],
     stderr: "ignore",
+});
+
+const google = createGoogleGenerativeAI({
+    apiKey: process.env.GEMINI_API_KEY,
 });
 
 async function main() {
@@ -84,6 +91,23 @@ async function main() {
                 }
 
                 break;
+            case "Prompts":
+                const promptName = await select({
+                    message: "Select a prompt",
+                    choices: prompts.map(prompt => ({
+                        name: prompt.name,
+                        value: prompt.name,
+                        description: prompt.description,
+                    })),
+                });
+
+                const prompt = prompts.find(prompt => prompt.name === promptName);
+
+                if (prompt == null) {
+                    console.error("Prompt not found!");
+                } else {
+                    await handlePrompt(prompt);
+                }
         }
     }
 }
@@ -132,7 +156,42 @@ async function handleResource(uri: string) {
     } else {
         console.log("Cannot parse text");
     }
+}
 
+async function handlePrompt(prompt: Prompt) {
+    const args: Record<string, string> = {};
+
+    for (const arg of prompt.arguments ?? []) {
+        args[arg.name] = await input({
+            message: `Enter value for ${arg.name}:`,
+        });
+    }
+
+    const res = await mcp.getPrompt({
+        name: prompt.name,
+        arguments: args,
+    });
+
+    for (const message of res.messages) {
+        console.log(await handleMessagePrompt(message));
+    }
+}
+
+async function handleMessagePrompt(message: PromptMessage) {
+    if (message.content.type !== "text") return;
+
+    console.log(message.content.text);
+    const run = await confirm({
+        message: "Would you like to run the above prompt?",
+        default: true,
+    });
+
+    const { text } = await generateText({
+        model: google("gemini-3.8-flash"),
+        prompt: message.content.text,
+    });
+
+    return text;
 }
 
 main();

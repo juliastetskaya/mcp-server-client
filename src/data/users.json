@@ -61,5 +61,12 @@
     "email": "mary@test.com",
     "address": "1222 dfgkldfg",
     "phone": "1445-22556"
+  },
+  {
+    "id": 10,
+    "name": "Kate",
+    "email": "kate@test.com",
+    "address": "Tbilisi, Georgia",
+    "phone": "555-55-55-55"
   }
 ]
