@@ -57,6 +57,33 @@ async function main() {
                     await handleTool(tool);
                 }
                 break;
+            case "Resources":
+                const resourceUri = await select({
+                    message: "Select a resource",
+                    choices: [
+                        ...resources.map(resource => ({
+                            name: resource.name,
+                            value: resource.uri,
+                            description: resource.description
+                        })),
+                        ...resourceTemplates.map(template => ({
+                            name: template.name,
+                            value: template.uriTemplate,
+                            description: template.description,
+                        })),
+                    ],
+                });
+
+                const uri = resources.find(resource => resource.uri === resourceUri)?.uri ??
+                resourceTemplates.find(resource => resource.uriTemplate === resourceUri)?.uriTemplate;
+
+                if (uri == null) {
+                    console.error("Resource not found!");
+                } else {
+                    await handleResource(uri);
+                }
+
+                break;
         }
     }
 }
@@ -68,7 +95,7 @@ async function handleTool(tool: Tool) {
         tool.inputSchema.properties ?? {}
     )) {
         args[key] = await input({
-            message: `Enter value for ${key} (${(value as { type: string }).type }):`
+            message: `Enter value for ${key} (${(value as { type: string }).type}):`
         })
     }
 
@@ -78,6 +105,34 @@ async function handleTool(tool: Tool) {
     });
 
     console.log((res.content as [{ text: string }])[0].text);
+}
+
+async function handleResource(uri: string) {
+    let finalUri = uri;
+    const paramMatches = uri.match(/{([^}]+)}/g);
+
+    if (paramMatches != null) {
+        for (const paramMatch of paramMatches) {
+            const paramName = paramMatch.replace("{", "").replace("}", "");
+            const paramValue = await input({
+                message: `Enter value for ${paramName}:`,
+            });
+            finalUri = finalUri.replace(paramMatch, paramValue);
+        }
+    }
+
+    const res = await mcp.readResource({
+        uri: finalUri,
+    });
+
+    const content = res.contents[0];
+
+    if (content && "text" in content) {
+        console.log(JSON.stringify(JSON.parse(content.text), null, 2));
+    } else {
+        console.log("Cannot parse text");
+    }
+
 }
 
 main();
